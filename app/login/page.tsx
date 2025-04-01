@@ -23,8 +23,9 @@ export default function Login() {
       localStorage.setItem("userEmail", email);
       
       toast({
-        title: "Inicio de sesión exitoso",
+        title: "Inicio de sesión exitosa",
         description: "Bienvenido a AutoRent",
+        open: true,
       });
       
       router.push("/");

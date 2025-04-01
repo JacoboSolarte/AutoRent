@@ -12,15 +12,6 @@ import { addDays } from "date-fns";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 
-type Car = {
-  id: number;
-  name: string;
-  description: string;
-  price: number;
-  category: string;
-  isRented: boolean;
-};
-
 const initialCars = [
   {
     id: 1,
@@ -131,8 +122,9 @@ export default function Home() {
     ? cars 
     : cars.filter(car => car.category === selectedCategory);
 
-  const handleReservation = (car: SetStateAction<null>) => {
-    setSelectedCar(car);
+  const handleReservation = (car: any) => {
+    setSelectedCar(car.id);
+    setDialogOpen(true); 
   };
 
   const calculateTotalDays = () => {
@@ -141,7 +133,6 @@ export default function Home() {
     }
     return 0;
   };
-
 
   const handleLogout = () => {
     localStorage.removeItem("isLoggedIn");
@@ -156,7 +147,6 @@ export default function Home() {
       return;
     }
   
-    // Actualizar el estado del auto a rentado
     setCars(prevCars => 
       prevCars.map(car => 
         car.id === selectedCar
@@ -167,10 +157,6 @@ export default function Home() {
   
     setDialogOpen(false);
   };
-  
-  if (!isLoggedIn) {
-    return null;
-  }
 
   if (!isLoggedIn) {
     return null;
@@ -191,11 +177,7 @@ export default function Home() {
                   <button
                     key={category}
                     onClick={() => setSelectedCategory(category)}
-                    className={`px-3 py-2 rounded-md text-sm font-medium ${
-                      selectedCategory === category
-                        ? "bg-blue-600 text-white"
-                        : "text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
-                    }`}
+                    className={`px-3 py-2 rounded-md text-sm font-medium ${selectedCategory === category ? "bg-blue-600 text-white" : "text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"}`}
                   >
                     {category}
                   </button>
@@ -252,57 +234,37 @@ export default function Home() {
                   <DialogTrigger asChild>
                     <Button 
                       className="w-full" 
-                      onClick={() => handleReservation}
+                      onClick={() => handleReservation(car)} 
                       disabled={car.isRented}
                     >
                       {car.isRented ? 'No Disponible' : 'Reservar Ahora'}
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="sm:max-w-[425px]">
+                  <DialogContent>
                     <DialogHeader>
-                      <DialogTitle>Reservar {car.name}</DialogTitle>
-                      <DialogDescription>
-                        Complete el formulario para reservar su vehículo
-                      </DialogDescription>
+                      <DialogTitle>Detalles de la Reserva</DialogTitle>
                     </DialogHeader>
-                    <form onSubmit={handleSubmitReservation} className="grid gap-4 py-4">
-                      <div className="grid gap-2">
-                        <Label htmlFor="name">Nombre Completo</Label>
-                        <div className="flex">
-                          <User className="w-4 h-4 mr-2 mt-3 text-gray-500" />
-                          <Input id="name" placeholder="Juan Pérez" required />
+                    <form onSubmit={handleSubmitReservation}>
+                      <div className="space-y-4">
+                        <div>
+                          <Label htmlFor="name">Nombre</Label>
+                          <Input id="name" required />
+                        </div>
+                        <div>
+                          <Label htmlFor="email">Correo Electrónico</Label>
+                          <Input id="email" required />
+                        </div>
+                        <div>
+                          <Label htmlFor="phone">Número de Teléfono</Label>
+                          <Input id="phone" required />
+                        </div>
+                        <div className="mt-4 flex justify-between">
+                          <Button variant="outline" onClick={() => setDialogOpen(false)}>
+                            Cancelar
+                          </Button>
+                          <Button type="submit">Confirmar Reserva</Button>
                         </div>
                       </div>
-                      <div className="grid gap-2">
-                        <Label htmlFor="email">Correo Electrónico</Label>
-                        <div className="flex">
-                          <Mail className="w-4 h-4 mr-2 mt-3 text-gray-500" />
-                          <Input 
-                            id="email" 
-                            type="email" 
-                            placeholder="juan@ejemplo.com"
-                            defaultValue={localStorage.getItem("userEmail") || ""}
-                            required 
-                          />
-                        </div>
-                      </div>
-                      <div className="grid gap-2">
-                        <Label htmlFor="phone">Teléfono</Label>
-                        <div className="flex">
-                          <Phone className="w-4 h-4 mr-2 mt-3 text-gray-500" />
-                          <Input id="phone" type="tel" placeholder="+34 600 000 000" required />
-                        </div>
-                      </div>
-                      <div className="grid gap-2">
-                        <Label htmlFor="card">Tarjeta de Crédito</Label>
-                        <div className="flex">
-                          <CreditCard className="w-4 h-4 mr-2 mt-3 text-gray-500" />
-                          <Input id="card" placeholder="**** **** **** ****" required />
-                        </div>
-                      </div>
-                      <Button type="submit" className="mt-4">
-                        Confirmar Reserva
-                      </Button>
                     </form>
                   </DialogContent>
                 </Dialog>
