@@ -142,12 +142,6 @@ export default function Home() {
     return 0;
   };
 
-  const calculateTotalPrice = () => {
-    if (selectedCar) {
-      return selectedCar* calculateTotalDays();
-    }
-    return 0;
-  };
 
   const handleLogout = () => {
     localStorage.removeItem("isLoggedIn");
