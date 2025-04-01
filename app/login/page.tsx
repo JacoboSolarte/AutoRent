@@ -18,7 +18,6 @@ export default function Login() {
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Simulamos un inicio de sesión exitoso
     if (email && password) {
       localStorage.setItem("isLoggedIn", "true");
       localStorage.setItem("userEmail", email);

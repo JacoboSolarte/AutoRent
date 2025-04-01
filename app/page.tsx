@@ -6,11 +6,13 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useState, useEffect } from "react";
+import { useState, useEffect, SetStateAction } from "react";
 import { DatePickerWithRange } from "@/components/date-range-picker";
 import { addDays } from "date-fns";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
+
+
 
 const initialCars = [
   {
@@ -122,20 +124,20 @@ export default function Home() {
     ? cars 
     : cars.filter(car => car.category === selectedCategory);
 
-  const handleReservation = (car) => {
+  const handleReservation = (car: SetStateAction<null>) => {
     setSelectedCar(car);
   };
 
   const calculateTotalDays = () => {
     if (date.from && date.to) {
-      return Math.ceil((date.to - date.from) / (1000 * 60 * 60 * 24));
+      return Math.ceil((date.to.getTime() - date.from.getTime()) / (1000 * 60 * 60 * 24));
     }
     return 0;
   };
 
   const calculateTotalPrice = () => {
     if (selectedCar) {
-      return selectedCar.price * calculateTotalDays();
+      return selectedCar* calculateTotalDays();
     }
     return 0;
   };
@@ -146,36 +148,28 @@ export default function Home() {
     router.push("/login");
   };
 
-  const handleSubmitReservation = (e) => {
+  const handleSubmitReservation = (e: { preventDefault: () => void; }) => {
     e.preventDefault();
     
+    if (!selectedCar) {
+      return;
+    }
+  
     // Actualizar el estado del auto a rentado
     setCars(prevCars => 
       prevCars.map(car => 
-        car.id === selectedCar.id 
+        car.id === selectedCar
           ? { ...car, isRented: true }
           : car
       )
     );
-
-    // Mostrar toast de confirmación
-    toast({
-      title: "¡Reserva Confirmada!",
-      description: (
-        <div className="mt-2 space-y-2">
-          <p className="font-medium">{selectedCar.name}</p>
-          <p>Duración: {calculateTotalDays()} días</p>
-          <p>Total a pagar: ${calculateTotalPrice()}</p>
-          <p className="text-green-600 dark:text-green-400 flex items-center gap-2">
-            <CheckCircle className="h-4 w-4" />
-            Pago procesado exitosamente
-          </p>
-        </div>
-      ),
-    });
-
+  
     setDialogOpen(false);
   };
+  
+  if (!isLoggedIn) {
+    return null;
+  }
 
   if (!isLoggedIn) {
     return null;
@@ -272,10 +266,6 @@ export default function Home() {
                     </DialogHeader>
                     <form onSubmit={handleSubmitReservation} className="grid gap-4 py-4">
                       <div className="grid gap-2">
-                        <Label htmlFor="dates">Fechas de Alquiler</Label>
-                        <DatePickerWithRange date={date} setDate={setDate} />
-                      </div>
-                      <div className="grid gap-2">
                         <Label htmlFor="name">Nombre Completo</Label>
                         <div className="flex">
                           <User className="w-4 h-4 mr-2 mt-3 text-gray-500" />
@@ -307,16 +297,6 @@ export default function Home() {
                         <div className="flex">
                           <CreditCard className="w-4 h-4 mr-2 mt-3 text-gray-500" />
                           <Input id="card" placeholder="**** **** **** ****" required />
-                        </div>
-                      </div>
-                      <div className="mt-4 space-y-2">
-                        <div className="flex justify-between text-sm">
-                          <span>Días de alquiler:</span>
-                          <span>{calculateTotalDays()} días</span>
-                        </div>
-                        <div className="flex justify-between font-semibold">
-                          <span>Total:</span>
-                          <span>${calculateTotalPrice()}</span>
                         </div>
                       </div>
                       <Button type="submit" className="mt-4">
