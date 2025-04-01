@@ -12,7 +12,14 @@ import { addDays } from "date-fns";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 
-
+type Car = {
+  id: number;
+  name: string;
+  description: string;
+  price: number;
+  category: string;
+  isRented: boolean;
+};
 
 const initialCars = [
   {
@@ -251,7 +258,7 @@ export default function Home() {
                   <DialogTrigger asChild>
                     <Button 
                       className="w-full" 
-                      onClick={() => handleReservation(car)}
+                      onClick={() => handleReservation}
                       disabled={car.isRented}
                     >
                       {car.isRented ? 'No Disponible' : 'Reservar Ahora'}
